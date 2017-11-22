@@ -2,7 +2,6 @@
 
 namespace Bookie\Blockchain\Normalizer;
 
-
 use Bookie\Blockchain\Bet;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;

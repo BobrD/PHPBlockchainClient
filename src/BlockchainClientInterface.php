@@ -76,9 +76,13 @@ interface BlockchainClientInterface
     public function getBetResults(string $transactionHash): array;
 
     /**
+     * @param string $transactionHash
+     *
      * @return int
+     *
+     * @throws NetworkException
      */
-    public function getCountResults(): int;
+    public function getCountResults(string $transactionHash): int;
 
     /**
      * @param string $transactionHash

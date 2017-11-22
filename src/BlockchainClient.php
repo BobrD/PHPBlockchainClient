@@ -27,9 +27,13 @@ class BlockchainClient implements BlockchainClientInterface
     {
         $endPoint = '/create_bet';
 
-        ['error' => $error, 'payload' => ['transactionHash' => $transactionHash]] = $this->client->sendPost($endPoint, [
+        $response = $this->client->sendPost($endPoint, [
             'bet' => $this->serializer->normalize($bet)
         ]);
+
+        $error = $response['error'];
+
+        $transactionHash = $response['payload']['transactionHash'];
 
         $this->assertError($endPoint, $error);
 
@@ -38,7 +42,19 @@ class BlockchainClient implements BlockchainClientInterface
 
     public function getContractAddress(string $transactionHash)
     {
-        // TODO: Implement getContractState() method.
+        $endPoint = '/get_contract_address';
+
+        $response = $this->client->sendPost($endPoint, [
+            'transactionHash' => $transactionHash
+        ]);
+
+        $error = $response['error'];
+
+        $address = $response['payload']['address'];
+
+        $this->assertError($endPoint, $error);
+
+        return $address;
     }
 
     public function getContractState(string $transactionHash): ContractState
@@ -50,9 +66,13 @@ class BlockchainClient implements BlockchainClientInterface
     {
         $endPoint = '/get_bet';
 
-        ['error' => $error, 'payload' => ['bet' => $bet]] = $this->client->sendPost($endPoint, [
+        $response = $this->client->sendPost($endPoint, [
             'transactionHash' => $transactionHash
         ]);
+
+        $error = $response['error'];
+
+        $bet = $response['payload']['bet'];
 
         $this->assertError($endPoint, $error);
 
@@ -63,10 +83,13 @@ class BlockchainClient implements BlockchainClientInterface
     {
         $endPoint = '/add_result';
 
-        ['error' => $error] = $this->client->sendPost($endPoint, [
+        $response = $this->client->sendPost($endPoint, [
             'transactionHash' => $transactionHash,
             'result' => $this->serializer->normalize($result)
         ]);
+
+        $error = $response['error'];
+
 
         $this->assertError($endPoint, $error);
     }
@@ -75,9 +98,11 @@ class BlockchainClient implements BlockchainClientInterface
     {
         $endPoint = '/commit';
 
-        ['error' => $error] = $this->client->sendPost($endPoint, [
+        $response = $this->client->sendPost($endPoint, [
             'transactionHash' => $transactionHash,
         ]);
+
+        $error = $response['error'];
 
         $this->assertError($endPoint, $error);
     }
@@ -91,28 +116,48 @@ class BlockchainClient implements BlockchainClientInterface
     {
         $endPoint = '/is_committed';
 
-        ['error' => $error, 'payload' => ['committed' => $committed]] = $this->client->sendPost($endPoint, [
+        $response = $this->client->sendPost($endPoint, [
             'transactionHash' => $transactionHash
         ]);
+
+        $error = $response['error'];
+
+        $committed = $response['payload']['committed'];
 
         $this->assertError($endPoint, $error);
 
         return $committed;
     }
 
-    public function getCountResults(): int
+    public function getCountResults(string $transactionHash): int
     {
-        // TODO: Implement getCountResults() method.
+        $endPoint = '/get_count_results';
+
+        $response = $this->client->sendPost($endPoint, [
+            'transactionHash' => $transactionHash
+        ]);
+
+        $error = $response['error'];
+
+        $count = $response['payload']['count'];
+
+        $this->assertError($endPoint, $error);
+
+        return $count;
     }
 
     public function getResultAt(string $transactionHash, int $index)
     {
         $endPoint = '/get_result_at';
 
-        ['error' => $error, 'payload' => ['result' => $result]] = $this->client->sendPost($endPoint, [
+        $response = $this->client->sendPost($endPoint, [
             'transactionHash' => $transactionHash,
             'index' => $index
         ]);
+
+        $error = $response['error'];
+
+        $result = $response['payload']['result'];
 
         $this->assertError($endPoint, $error);
 
