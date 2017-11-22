@@ -2,7 +2,7 @@
 
 namespace Bookie\Blockchain\Exception;
 
-class BuilderException extends \RuntimeException
+class BuilderException extends AbstractBlockchainException
 {
     public function __construct(array $fields)
     {

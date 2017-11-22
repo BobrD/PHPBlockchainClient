@@ -4,7 +4,7 @@ namespace Bookie\Blockchain;
 
 use Bookie\Blockchain\Exception\NetworkException;
 
-interface BookieBetBlockChainInterface
+interface BlockchainClientInterface
 {
     /**
      * Create contact in blockchain and return transaction hash.
@@ -44,7 +44,7 @@ interface BookieBetBlockChainInterface
      *
      * @throws NetworkException
      */
-    public function getBet(string $transactionHash);
+    public function getBet(string $transactionHash): Bet;
 
     /**
      * todo return type
@@ -54,15 +54,17 @@ interface BookieBetBlockChainInterface
      * @param BetResult $result
      *
      * @throws NetworkException
+     *
+     * @return void
      */
-    public function settleBet(string $transactionHash, BetResult $result);
+    public function addResult(string $transactionHash, BetResult $result);
 
     /**
      * @param string $transactionHash
      *
      * @return mixed
      */
-    public function finish(string $transactionHash);
+    public function commit(string $transactionHash);
 
     /**
      * @param string $transactionHash
@@ -74,9 +76,23 @@ interface BookieBetBlockChainInterface
     public function getBetResults(string $transactionHash): array;
 
     /**
+     * @return int
+     */
+    public function getCountResults(): int;
+
+    /**
+     * @param string $transactionHash
+     * @param int $index
+     *
+     * @return BetResult|null
+     *
+     */
+    public function getResultAt(string $transactionHash, int $index);
+
+    /**
      * @param string $transactionHash
      *
      * @return bool
      */
-    public function isFinished(string $transactionHash): bool;
+    public function isCommitted(string $transactionHash): bool;
 }

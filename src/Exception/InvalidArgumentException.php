@@ -2,6 +2,6 @@
 
 namespace Bookie\Blockchain\Exception;
 
-class InvalidArgumentException extends \InvalidArgumentException
+class InvalidArgumentException extends AbstractBlockchainException
 {
 }

@@ -4,10 +4,19 @@ namespace Bookie\Blockchain;
 
 final class BetResult
 {
+    /**
+     * @var int
+     */
     private $time;
 
+    /**
+     * @var BetResultType
+     */
     private $type;
 
+    /**
+     * @var float
+     */
     private $amount;
 
     /**

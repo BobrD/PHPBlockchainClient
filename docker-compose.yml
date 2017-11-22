@@ -6,3 +6,9 @@ services:
     volumes:
       - ./:/var/www/blockchain.dev
     command: tail -f /dev/null
+
+
+networks:
+    default:
+        external:
+            name: ethbetcontract_default

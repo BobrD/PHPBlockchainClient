@@ -4,9 +4,10 @@ namespace Bookie\Blockchain\Normalizer;
 
 
 use Bookie\Blockchain\Bet;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class BetNormalizer implements NormalizerInterface
+class BetNormalizer implements NormalizerInterface, DenormalizerInterface
 {
     /**
      * @param Bet $object
@@ -33,5 +34,26 @@ class BetNormalizer implements NormalizerInterface
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof Bet;
+    }
+
+    public function denormalize($data, $class, $format = null, array $context = array())
+    {
+        return new Bet(
+            $data['id'],
+            $data['playerName'],
+            $data['amount'],
+            $data['currency'],
+            $data['odds'],
+            $data['betType'],
+            $data['wager'],
+            $data['eventTitle'],
+            $data['live'],
+            $data['betTime']
+        );
+    }
+
+    public function supportsDenormalization($data, $type, $format = null)
+    {
+        return $type === Bet::class;
     }
 }

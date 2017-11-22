@@ -3,7 +3,8 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.0 <7.2",
-        "symfony/serializer": "^3.3"
+        "symfony/serializer": "^3.3",
+        "phpunit/phpunit": "^6.4"
     },
     "autoload": {
         "psr-4": {

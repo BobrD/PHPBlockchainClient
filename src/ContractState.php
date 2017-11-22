@@ -39,9 +39,12 @@ final class ContractState
      */
     public static function create($type): ContractState
     {
-        return static::FlyweightCreate($type);
+        return self::FlyweightCreate($type);
     }
 
+    /***
+     * @return string
+     */
     public function getState(): string
     {
         return $this->state;
