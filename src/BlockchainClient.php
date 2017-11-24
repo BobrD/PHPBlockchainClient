@@ -23,6 +23,9 @@ class BlockchainClient implements BlockchainClientInterface
         $this->serializer = $serializer;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function createBet(Bet $bet): string
     {
         $endPoint = '/create_bet';
@@ -40,6 +43,9 @@ class BlockchainClient implements BlockchainClientInterface
         return $transactionHash;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getContractAddress(string $transactionHash)
     {
         $endPoint = '/get_contract_address';
@@ -57,11 +63,17 @@ class BlockchainClient implements BlockchainClientInterface
         return $address;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getContractState(string $transactionHash): ContractState
     {
         // TODO: Implement getContractState() method.
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getBet(string $transactionHash): Bet
     {
         $endPoint = '/get_bet';
@@ -79,6 +91,9 @@ class BlockchainClient implements BlockchainClientInterface
         return $this->serializer->denormalize($bet, Bet::class);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function addResult(string $transactionHash, BetResult $result)
     {
         $endPoint = '/add_result';
@@ -94,6 +109,9 @@ class BlockchainClient implements BlockchainClientInterface
         $this->assertError($endPoint, $error);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function commit(string $transactionHash)
     {
         $endPoint = '/commit';
@@ -107,11 +125,25 @@ class BlockchainClient implements BlockchainClientInterface
         $this->assertError($endPoint, $error);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getBetResults(string $transactionHash): array
     {
-        // TODO: Implement getBetResults() method.
+        $results = $this->getCountResults($transactionHash);
+
+        if (0 === $results) {
+            return [];
+        }
+
+        return array_map(function ($index) use ($transactionHash) {
+            return $this->getResultAt($transactionHash, $index);
+        }, range(0,  $results - 1));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isCommitted(string $transactionHash): bool
     {
         $endPoint = '/is_committed';
@@ -129,6 +161,9 @@ class BlockchainClient implements BlockchainClientInterface
         return $committed;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCountResults(string $transactionHash): int
     {
         $endPoint = '/get_count_results';
@@ -146,6 +181,9 @@ class BlockchainClient implements BlockchainClientInterface
         return $count;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getResultAt(string $transactionHash, int $index)
     {
         $endPoint = '/get_result_at';

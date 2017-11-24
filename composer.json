@@ -3,6 +3,8 @@
     "minimum-stability": "stable",
     "require": {
         "symfony/serializer": "^3.3",
+    },
+    "require-dev": {
         "phpunit/phpunit": "^6.4"
     },
     "autoload": {
