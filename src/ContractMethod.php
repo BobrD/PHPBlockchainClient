@@ -2,20 +2,20 @@
 
 namespace Bookie\Blockchain;
 
-final class BetType
+final class ContractMethod
 {
     use FlyweightTrait {
         FlyweightTrait::create as FlyweightCreate;
         FlyweightTrait::__construct as private flyweight__construct;
     }
 
-    const SINGLE = 'SINGLE';
+    // [!] don't rename const value
 
-    const COMBINED = 'COMBINED';
+    const COMMIT = 'commit';
 
-    const SYSTEM = 'SYSTEM';
+    const ADD_RESULT = 'addResult';
 
-    const IFBET = 'IFBET';
+    const CREATE = 'create';
 
 
     /**
@@ -23,20 +23,20 @@ final class BetType
      */
     private function __construct(string $type)
     {
-        $this->flyweight__construct($type, 'Invalid bet type.');
+        $this->flyweight__construct($type, 'Invalid contract method.');
     }
 
     /**
-     * @param string|BetType $type
+     * @param string|ContractMethod $type
      *
-     * @return BetType
+     * @return ContractMethod
      */
-    public static function create($type): BetType
+    public static function create($type): ContractMethod
     {
         return static::FlyweightCreate($type);
     }
 
-    public function getType(): string
+    public function getMethod(): string
     {
         return $this->getValue();
     }

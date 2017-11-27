@@ -6,6 +6,7 @@ final class BetResultType
 {
     use FlyweightTrait {
         FlyweightTrait::create as FlyweightCreate;
+        FlyweightTrait::__construct as private flyweight__construct;
     }
 
     const WIN = 'WIN';
@@ -18,19 +19,13 @@ final class BetResultType
 
     const LOST = 'LOST';
 
-    /**
-     * @var string
-     */
-    private $type;
 
     /**
      * @param string $type
      */
     private function __construct(string $type)
     {
-        $this->assertType($type,'Invalid bet result type');
-
-        $this->type = $type;
+        $this->flyweight__construct($type, 'Invalid bet result type');
     }
 
     public static function create($type): self
@@ -43,6 +38,6 @@ final class BetResultType
      */
     public function type(): string
     {
-        return $this->type;
+        return $this->getValue();
     }
 }

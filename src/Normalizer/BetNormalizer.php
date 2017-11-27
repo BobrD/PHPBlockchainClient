@@ -22,7 +22,7 @@ class BetNormalizer implements NormalizerInterface, DenormalizerInterface
             'amount' => $object->getAmount(),
             'currency' => $object->getCurrency(),
             'odds' => $object->getOdds(),
-            'betType' => $object->getBetType(),
+            'betType' => $object->getBetType()->getType(),
             'wager' => $object->getWager(),
             'eventTitle' => $object->getEventTitle(),
             'live' => $object->isLive(),
@@ -37,6 +37,10 @@ class BetNormalizer implements NormalizerInterface, DenormalizerInterface
 
     public function denormalize($data, $class, $format = null, array $context = array())
     {
+        if (!is_array($data)) {
+            return null;
+        }
+
         return new Bet(
             $data['id'],
             $data['playerName'],

@@ -3,6 +3,8 @@
 namespace Bookie\Blockchain;
 
 use Bookie\Blockchain\Exception\RequestFailedException;
+use Bookie\Blockchain\Messages\CreateBetResponse;
+use Bookie\Blockchain\Messages\TransactionResponse;
 use Symfony\Component\Serializer\Serializer;
 
 class BlockchainClient implements BlockchainClientInterface
@@ -26,178 +28,100 @@ class BlockchainClient implements BlockchainClientInterface
     /**
      * {@inheritdoc}
      */
-    public function createBet(Bet $bet): string
+    public function createBet(Bet $bet): CreateBetResponse
     {
-        $endPoint = '/create_bet';
+        $payload = $this->send('/create_bet', ['bet' => $this->serializer->normalize($bet)]);
 
-        $response = $this->client->sendPost($endPoint, [
-            'bet' => $this->serializer->normalize($bet)
-        ]);
-
-        $error = $response['error'];
-
-        $transactionHash = $response['payload']['transactionHash'];
-
-        $this->assertError($endPoint, $error);
-
-        return $transactionHash;
+        return new CreateBetResponse($payload['transactionHash'], $payload['uuid']);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getContractAddress(string $transactionHash)
+    public function getContractAddress(string $uuid)
     {
-        $endPoint = '/get_contract_address';
-
-        $response = $this->client->sendPost($endPoint, [
-            'transactionHash' => $transactionHash
-        ]);
-
-        $error = $response['error'];
-
-        $address = $response['payload']['address'];
-
-        $this->assertError($endPoint, $error);
-
-        return $address;
+        return $this->send('/get_contract_address', ['uuid' => $uuid])['address'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getContractState(string $transactionHash): ContractState
+    public function getTransaction(string $transactionHash): Transaction
     {
-        // TODO: Implement getContractState() method.
+        $transaction = $this->send('/get_transaction', ['transactionHash' => $transactionHash])['transaction'];
+
+        return $this->serializer->denormalize($transaction, Transaction::class);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBet(string $transactionHash): Bet
+    public function getBet(string $uuid): Bet
     {
-        $endPoint = '/get_bet';
+        $bet = $this->send('/get_bet', ['uuid' => $uuid])['bet'];
 
-        $response = $this->client->sendPost($endPoint, [
-            'transactionHash' => $transactionHash
-        ]);
-
-        $error = $response['error'];
-
-        $bet = $response['payload']['bet'];
-
-        $this->assertError($endPoint, $error);
-
-        return $this->serializer->denormalize($bet, Bet::class);
+        return $this->serializer->deserialize($bet, Bet::class, 'json');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addResult(string $transactionHash, BetResult $result)
+    public function addResult(string $uuid, BetResult $result): TransactionResponse
     {
-        $endPoint = '/add_result';
-
-        $response = $this->client->sendPost($endPoint, [
-            'transactionHash' => $transactionHash,
+        return $this->sendTransaction('/add_result', [
+            'uuid' => $uuid,
             'result' => $this->serializer->normalize($result)
         ]);
-
-        $error = $response['error'];
-
-
-        $this->assertError($endPoint, $error);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function commit(string $transactionHash)
+    public function commit(string $uuid): TransactionResponse
     {
-        $endPoint = '/commit';
-
-        $response = $this->client->sendPost($endPoint, [
-            'transactionHash' => $transactionHash,
+        return $this->sendTransaction('/commit', [
+            'uuid' => $uuid,
         ]);
-
-        $error = $response['error'];
-
-        $this->assertError($endPoint, $error);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBetResults(string $transactionHash): array
+    public function getBetResults(string $uuid): array
     {
-        $results = $this->getCountResults($transactionHash);
+        $results = $this->getCountResults($uuid);
 
         if (0 === $results) {
             return [];
         }
 
-        return array_map(function ($index) use ($transactionHash) {
-            return $this->getResultAt($transactionHash, $index);
+        return array_map(function ($index) use ($uuid) {
+            return $this->getResultAt($uuid, $index);
         }, range(0,  $results - 1));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isCommitted(string $transactionHash): bool
+    public function isCommitted(string $uuid): bool
     {
-        $endPoint = '/is_committed';
-
-        $response = $this->client->sendPost($endPoint, [
-            'transactionHash' => $transactionHash
-        ]);
-
-        $error = $response['error'];
-
-        $committed = $response['payload']['committed'];
-
-        $this->assertError($endPoint, $error);
-
-        return $committed;
+        return $this->send('/is_committed', ['uuid' => $uuid])['committed'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCountResults(string $transactionHash): int
+    public function getCountResults(string $uuid): int
     {
-        $endPoint = '/get_count_results';
-
-        $response = $this->client->sendPost($endPoint, [
-            'transactionHash' => $transactionHash
-        ]);
-
-        $error = $response['error'];
-
-        $count = $response['payload']['count'];
-
-        $this->assertError($endPoint, $error);
-
-        return $count;
+        return $this->send('/get_count_results', ['uuid' => $uuid])['count'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResultAt(string $transactionHash, int $index)
+    public function getResultAt(string $uuid, int $index)
     {
-        $endPoint = '/get_result_at';
-
-        $response = $this->client->sendPost($endPoint, [
-            'transactionHash' => $transactionHash,
-            'index' => $index
-        ]);
-
-        $error = $response['error'];
-
-        $result = $response['payload']['result'];
-
-        $this->assertError($endPoint, $error);
+        $result = $this->send('/get_result_at', ['uuid' => $uuid, 'index' => $index])['result'];
 
         return $this->serializer->denormalize($result, BetResult::class);
     }
@@ -213,5 +137,27 @@ class BlockchainClient implements BlockchainClientInterface
         if (null !== $error) {
             throw new RequestFailedException($endPoint, $error);
         }
+    }
+
+    private function sendTransaction(string $endPoint, array $params): TransactionResponse
+    {
+        return new TransactionResponse($this->send($endPoint, $params)['transactionHash']);
+    }
+
+    /**
+     * Return payload.
+     *
+     * @param string $endPoint
+     * @param array $params
+     *
+     * @return array
+     */
+    private function send(string $endPoint, array $params): array
+    {
+        $response = $this->client->sendPost($endPoint, $params);
+
+        $this->assertError($endPoint, $response['error']);
+
+        return $response['payload'];
     }
 }

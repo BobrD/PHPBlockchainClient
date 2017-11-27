@@ -6,7 +6,19 @@ use Bookie\Blockchain\Exception\InvalidArgumentException;
 
 trait FlyweightTrait
 {
-    private function assertType($type, $message)
+    /**
+     * @var string
+     */
+    private $value;
+
+    private function __construct(string $value, string $errorMessage)
+    {
+        $this->assertValue($value, $errorMessage);
+
+        $this->value = $value;
+    }
+
+    private function assertValue($type, $message)
     {
         $allowedTypes = (new \ReflectionObject($this))->getConstants();
 
@@ -37,5 +49,20 @@ trait FlyweightTrait
         }
 
         return $types[$type] = new self($type);
+    }
+
+    /**
+     * @param self|string $other
+     *
+     * @return bool
+     */
+    public function eq($other)
+    {
+        return $this->value === self::create($other)->value;
+    }
+
+    private function getValue(): string
+    {
+        return $this->value;
     }
 }

@@ -3,6 +3,8 @@
 namespace Bookie\Blockchain;
 
 use Bookie\Blockchain\Exception\NetworkException;
+use Bookie\Blockchain\Messages\CreateBetResponse;
+use Bookie\Blockchain\Messages\TransactionResponse;
 
 interface BlockchainClientInterface
 {
@@ -11,92 +13,92 @@ interface BlockchainClientInterface
      *
      * @param Bet $bet
      *
-     * @return string
+     * @return CreateBetResponse
      *
      * @throws NetworkException
      */
-    public function createBet(Bet $bet): string;
+    public function createBet(Bet $bet): CreateBetResponse;
 
     /**
      * Request contract address by transaction hash. If exist return it, else null.
      *
-     * @param string $transactionHash
+     * @param string $uuid
      *
      * @return string|null
      *
      * @throws NetworkException
      */
-    public function getContractAddress(string $transactionHash);
+    public function getContractAddress(string $uuid);
 
     /**
      * @param string $transactionHash
      *
-     * @return ContractState
+     * @return Transaction
      *
      * @throws NetworkException
      */
-    public function getContractState(string $transactionHash): ContractState;
+    public function getTransaction(string $transactionHash): Transaction;
 
     /**
-     * @param string $transactionHash
+     * @param string $uuid
      *
      * @return Bet
      *
      * @throws NetworkException
      */
-    public function getBet(string $transactionHash): Bet;
+    public function getBet(string $uuid): Bet;
 
     /**
      * todo return type
      *
-     * @param string $transactionHash
+     * @param string $uuid
      *
      * @param BetResult $result
      *
      * @throws NetworkException
      *
-     * @return void
+     * @return TransactionResponse
      */
-    public function addResult(string $transactionHash, BetResult $result);
+    public function addResult(string $uuid, BetResult $result): TransactionResponse;
 
     /**
-     * @param string $transactionHash
+     * @param string $uuid
      *
-     * @return mixed
+     * @return TransactionResponse
      */
-    public function commit(string $transactionHash);
+    public function commit(string $uuid): TransactionResponse;
 
     /**
-     * @param string $transactionHash
+     * @param string $uuid
      *
      * @return BetResult[]
      *
      * @throws NetworkException
      */
-    public function getBetResults(string $transactionHash): array;
+    public function getBetResults(string $uuid): array;
 
     /**
-     * @param string $transactionHash
+     * @param string $uuid
      *
      * @return int
      *
      * @throws NetworkException
      */
-    public function getCountResults(string $transactionHash): int;
+    public function getCountResults(string $uuid): int;
 
     /**
-     * @param string $transactionHash
+     * @param string $uuid
      * @param int $index
      *
      * @return BetResult|null
      *
      */
-    public function getResultAt(string $transactionHash, int $index);
+    public function getResultAt(string $uuid, int $index);
 
     /**
-     * @param string $transactionHash
+     * @param string $uuid
      *
      * @return bool
      */
-    public function isCommitted(string $transactionHash): bool;
+    public function isCommitted(string $uuid): bool;
 }

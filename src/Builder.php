@@ -6,6 +6,8 @@ namespace Bookie\Blockchain;
 use Bookie\Blockchain\Exception\BuilderException;
 use Bookie\Blockchain\Normalizer\BetNormalizer;
 use Bookie\Blockchain\Normalizer\BetResultNormalizer;
+use Bookie\Blockchain\Normalizer\TransactionNormalizer;
+use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Serializer;
 
 class Builder
@@ -27,26 +29,38 @@ class Builder
 
     /**
      * @param HttpClientInterface $client
+     *
+     * @return $this
      */
-    public function client(HttpClientInterface $client)
+    public function client(HttpClientInterface $client): Builder
     {
         $this->client = $client;
+
+        return $this;
     }
 
     /**
      * @param string $host
+     *
+     * @return $this
      */
-    public function host(string $host)
+    public function host(string $host): Builder
     {
         $this->host = $host;
+
+        return $this;
     }
 
     /**
      * @param int $port
+     *
+     * @return $this
      */
-    public function port(int $port)
+    public function port(int $port): Builder
     {
         $this->port = $port;
+
+        return $this;
     }
 
     /**
@@ -64,7 +78,10 @@ class Builder
     {
         return new Serializer([
             new BetNormalizer(),
-            new BetResultNormalizer()
+            new BetResultNormalizer(),
+            new TransactionNormalizer()
+        ], [
+            new JsonDecode(true)
         ]);
     }
 
