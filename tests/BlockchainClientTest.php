@@ -104,7 +104,7 @@ class BlockchainClientTest extends TestCase
 
         $addResultResponse = $this->client->addResult($uuid, new BetResult(time(), BetResultType::WIN, 150));
 
-        $this->waiteDone($addResultResponse->getTransactionHash(), ContractMethod::ADD_RESULT);
+        $this->waiteDone($addResultResponse->getTransactionHash());
 
         $this->assertInstanceOf(BetResult::class, $this->client->getResultAt($uuid, 0));
         $this->assertNull($this->client->getResultAt($uuid, 1));
@@ -116,7 +116,7 @@ class BlockchainClientTest extends TestCase
 
         $commitResponse = $this->client->commit($uuid);
 
-        $this->waiteDone($commitResponse->getTransactionHash(), ContractMethod::COMMIT);
+        $this->waiteDone($commitResponse->getTransactionHash());
 
         $this->assertTrue($this->client->isCommitted($uuid));
     }
@@ -127,7 +127,7 @@ class BlockchainClientTest extends TestCase
 
         $addResultResponse = $this->client->addResult($uuid, new BetResult(time(), BetResultType::WIN, 150));
 
-        $this->waiteDone($addResultResponse->getTransactionHash(), ContractMethod::ADD_RESULT);
+        $this->waiteDone($addResultResponse->getTransactionHash());
 
         $results = $this->client->getBetResults($uuid);
 
@@ -142,7 +142,7 @@ class BlockchainClientTest extends TestCase
 
         $this->assertFalse($this->client->isCommitted($uuid));
 
-        $this->waiteDone($this->client->commit($uuid)->getTransactionHash(), ContractMethod::COMMIT);
+        $this->waiteDone($this->client->commit($uuid)->getTransactionHash());
 
         $this->assertTrue($this->client->isCommitted($uuid));
 
@@ -156,7 +156,7 @@ class BlockchainClientTest extends TestCase
 
         $response = $this->client->addResult($uuid, new BetResult(time(), BetResultType::WIN, 150));
 
-        $this->waiteDone($response->getTransactionHash(), ContractMethod::ADD_RESULT);
+        $this->waiteDone($response->getTransactionHash());
 
         $this->assertEquals(1, $this->client->getCountResults($uuid));
     }
@@ -168,17 +168,13 @@ class BlockchainClientTest extends TestCase
 
     /**
      * @param string $transactionHash
-     * @param string|ContractMethod $method
      */
-    private function waiteDone($transactionHash, $method)
+    private function waiteDone(string $transactionHash)
     {
         while (true) {
             $transaction = $this->client->getTransaction($transactionHash);
 
-            if (
-                $transaction->getState()->eq(TransactionState::DONE) &&
-                $transaction->getMethod()->eq($method)
-            ) {
+            if ($transaction->getState()->eq(TransactionState::DONE)) {
                 break;
             }
         }
@@ -201,7 +197,7 @@ class BlockchainClientTest extends TestCase
 
         $createResponse = $this->client->createBet($bet);
 
-        $this->waiteDone($createResponse->getTransactionHash(), ContractMethod::CREATE);
+        $this->waiteDone($createResponse->getTransactionHash());
 
         return $createResponse->getUuid();
     }
