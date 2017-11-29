@@ -82,12 +82,11 @@ class BlockchainClientTest extends TestCase
 
     public function testGetContractAddress()
     {
+        $uuid = $this->createAndWait();
 
-    }
+        $result = $this->client->getContractAddress($uuid);
 
-    public function testGetContractState()
-    {
-
+        $this->assertNotEmpty($result);
     }
 
     public function testGetBet()
@@ -101,12 +100,25 @@ class BlockchainClientTest extends TestCase
 
     public function testAddResult()
     {
+        $uuid = $this->createAndWait();
 
+        $addResultResponse = $this->client->addResult($uuid, new BetResult(time(), BetResultType::WIN, 150));
+
+        $this->waiteDone($addResultResponse->getTransactionHash(), ContractMethod::ADD_RESULT);
+
+        $this->assertInstanceOf(BetResult::class, $this->client->getResultAt($uuid, 0));
+        $this->assertNull($this->client->getResultAt($uuid, 1));
     }
 
     public function testCommit()
     {
+        $uuid = $this->createAndWait();
 
+        $commitResponse = $this->client->commit($uuid);
+
+        $this->waiteDone($commitResponse->getTransactionHash(), ContractMethod::COMMIT);
+
+        $this->assertTrue($this->client->isCommitted($uuid));
     }
 
     public function testGetBetResults()
@@ -172,7 +184,7 @@ class BlockchainClientTest extends TestCase
         }
     }
 
-    private function createAndWait()
+    private function createAndWait(): string
     {
         $bet = new Bet(
             'id',

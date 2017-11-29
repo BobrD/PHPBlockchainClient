@@ -30,6 +30,10 @@ class BetResultNormalizer implements NormalizerInterface, DenormalizerInterface
 
     public function denormalize($data, $class, $format = null, array $context = array())
     {
+        if (!is_array($data)) {
+            return null;
+        }
+
         return new BetResult(
             $data['time'],
             $data['type'],

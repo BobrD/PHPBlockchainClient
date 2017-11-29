@@ -2,7 +2,6 @@
 
 namespace Bookie\Blockchain;
 
-
 use Bookie\Blockchain\Exception\BuilderException;
 use Bookie\Blockchain\Normalizer\BetNormalizer;
 use Bookie\Blockchain\Normalizer\BetResultNormalizer;
