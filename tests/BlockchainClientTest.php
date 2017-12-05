@@ -9,6 +9,7 @@ use Bookie\Blockchain\BetType;
 use Bookie\Blockchain\BlockchainClient;
 use Bookie\Blockchain\Builder;
 use Bookie\Blockchain\ContractMethod;
+use Bookie\Blockchain\Messages\CreateFastBetResponse;
 use Bookie\Blockchain\TransactionState;
 use PHPUnit\Framework\TestCase;
 
@@ -29,18 +30,7 @@ class BlockchainClientTest extends TestCase
 
     public function testCreateBetReturnTransaction()
     {
-        $bet = new Bet(
-            'id',
-            'playerName',
-            100,
-            'EUR',
-            1.3,
-            BetType::create(BetType::COMBINED),
-            'wager',
-            'eventTitle',
-            true,
-            time()
-        );
+        $bet = $this->creteBet();
 
         $transactionHash = $this->client->createBet($bet)->getTransactionHash();
         $uuid = $this->client->createBet($bet)->getUuid();
@@ -51,20 +41,7 @@ class BlockchainClientTest extends TestCase
 
     public function testGetTransactionState()
     {
-        $bet = new Bet(
-            'id',
-            'playerName',
-            100,
-            'EUR',
-            1.3,
-            BetType::create(BetType::COMBINED),
-            'wager',
-            'eventTitle',
-            true,
-            time()
-        );
-
-        $transactionHash = $this->client->createBet($bet)->getTransactionHash();
+        $transactionHash = $this->client->createBet($this->creteBet())->getTransactionHash();
 
         $states = [];
         while (true) {
@@ -161,9 +138,31 @@ class BlockchainClientTest extends TestCase
         $this->assertEquals(1, $this->client->getCountResults($uuid));
     }
 
-    public function testGetResultAt()
+    public function testCreateFastBet()
     {
+        $result = $this->client->createFastBet($this->creteBet());
 
+        $this->assertInstanceOf(CreateFastBetResponse::class, $result);
+        $this->assertNotEmpty($result->getUuid());
+    }
+
+    public function testGetCreateBetTransactionHash()
+    {
+        $result = $this->client->createFastBet($this->creteBet());
+
+        $hash = null;
+
+        foreach (range(0, 5) as $_) {
+            sleep(1);
+
+            $hash = $this->client->getCreateBetTransactionHash($result->getUuid());
+
+            if (null !== $hash) {
+                break;
+            }
+        }
+
+        $this->assertNotNull($hash);
     }
 
     /**
@@ -180,9 +179,9 @@ class BlockchainClientTest extends TestCase
         }
     }
 
-    private function createAndWait(): string
+    private function creteBet()
     {
-        $bet = new Bet(
+        return  new Bet(
             'id',
             'playerName',
             100,
@@ -194,8 +193,11 @@ class BlockchainClientTest extends TestCase
             true,
             time()
         );
+    }
 
-        $createResponse = $this->client->createBet($bet);
+    private function createAndWait(): string
+    {
+        $createResponse = $this->client->createBet($this->creteBet());
 
         $this->waiteDone($createResponse->getTransactionHash());
 

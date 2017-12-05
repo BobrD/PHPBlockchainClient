@@ -4,12 +4,13 @@ namespace Bookie\Blockchain;
 
 use Bookie\Blockchain\Exception\NetworkException;
 use Bookie\Blockchain\Messages\CreateBetResponse;
+use Bookie\Blockchain\Messages\CreateFastBetResponse;
 use Bookie\Blockchain\Messages\TransactionResponse;
 
 interface BlockchainClientInterface
 {
     /**
-     * Create contact in blockchain and return transaction hash.
+     * Create contact in blockchain and return transaction hash and uuid.
      *
      * @param Bet $bet
      *
@@ -18,6 +19,24 @@ interface BlockchainClientInterface
      * @throws NetworkException
      */
     public function createBet(Bet $bet): CreateBetResponse;
+
+    /**
+     * Create contract and return uuid without await transaction.
+     *
+     * @param Bet $bet
+     *
+     * @return CreateFastBetResponse
+     *
+     * @throws NetworkException
+     */
+    public function createFastBet(Bet $bet): CreateFastBetResponse;
+
+    /**
+     * @param string $uuid
+     *
+     * @return string|null
+     */
+    public function getCreateBetTransactionHash(string $uuid);
 
     /**
      * Request contract address by transaction hash. If exist return it, else null.

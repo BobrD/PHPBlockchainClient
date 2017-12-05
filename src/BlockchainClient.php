@@ -4,6 +4,7 @@ namespace Bookie\Blockchain;
 
 use Bookie\Blockchain\Exception\RequestFailedException;
 use Bookie\Blockchain\Messages\CreateBetResponse;
+use Bookie\Blockchain\Messages\CreateFastBetResponse;
 use Bookie\Blockchain\Messages\TransactionResponse;
 use Symfony\Component\Serializer\Serializer;
 
@@ -30,7 +31,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function createBet(Bet $bet): CreateBetResponse
     {
-        $payload = $this->send('/create_bet', ['bet' => $this->serializer->normalize($bet)]);
+        $payload = $this->send('create_bet', ['bet' => $this->serializer->normalize($bet)]);
 
         return new CreateBetResponse($payload['transactionHash'], $payload['uuid']);
     }
@@ -40,7 +41,25 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function getContractAddress(string $uuid)
     {
-        return $this->send('/get_contract_address', ['uuid' => $uuid])['address'];
+        return $this->send('get_contract_address', ['uuid' => $uuid])['address'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createFastBet(Bet $bet): CreateFastBetResponse
+    {
+        $payload = $this->send('create_bet', ['bet' => $this->serializer->normalize($bet)]);
+
+        return new CreateFastBetResponse($payload['uuid']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreateBetTransactionHash(string $uuid)
+    {
+        return $this->send('get_crete_bet_transaction', ['uuid' => $uuid])['transactionHash'];
     }
 
     /**
@@ -48,7 +67,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function getTransaction(string $transactionHash): Transaction
     {
-        $transaction = $this->send('/get_transaction', ['transactionHash' => $transactionHash])['transaction'];
+        $transaction = $this->send('get_transaction', ['transactionHash' => $transactionHash])['transaction'];
 
         return $this->serializer->denormalize($transaction, Transaction::class);
     }
@@ -58,7 +77,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function getBet(string $uuid): Bet
     {
-        $bet = $this->send('/get_bet', ['uuid' => $uuid])['bet'];
+        $bet = $this->send('get_bet', ['uuid' => $uuid])['bet'];
 
         return $this->serializer->deserialize($bet, Bet::class, 'json');
     }
@@ -68,7 +87,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function addResult(string $uuid, BetResult $result): TransactionResponse
     {
-        return $this->sendTransaction('/add_result', [
+        return $this->sendTransaction('add_result', [
             'uuid' => $uuid,
             'result' => $this->serializer->normalize($result)
         ]);
@@ -79,7 +98,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function commit(string $uuid): TransactionResponse
     {
-        return $this->sendTransaction('/commit', [
+        return $this->sendTransaction('commit', [
             'uuid' => $uuid,
         ]);
     }
@@ -105,7 +124,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function isCommitted(string $uuid): bool
     {
-        return $this->send('/is_committed', ['uuid' => $uuid])['committed'];
+        return $this->send('is_committed', ['uuid' => $uuid])['committed'];
     }
 
     /**
@@ -113,7 +132,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function getCountResults(string $uuid): int
     {
-        return $this->send('/get_count_results', ['uuid' => $uuid])['count'];
+        return $this->send('get_count_results', ['uuid' => $uuid])['count'];
     }
 
     /**
@@ -121,7 +140,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     public function getResultAt(string $uuid, int $index)
     {
-        $result = $this->send('/get_result_at', ['uuid' => $uuid, 'index' => $index])['result'];
+        $result = $this->send('get_result_at', ['uuid' => $uuid, 'index' => $index])['result'];
 
         return $this->serializer->deserialize($result, BetResult::class, 'json');
     }
@@ -154,7 +173,7 @@ class BlockchainClient implements BlockchainClientInterface
      */
     private function send(string $endPoint, array $params): array
     {
-        $response = $this->client->sendPost($endPoint, $params);
+        $response = $this->client->sendPost('/'.$endPoint, $params);
 
         $this->assertError($endPoint, $response['error']);
 
