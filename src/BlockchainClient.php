@@ -79,7 +79,7 @@ class BlockchainClient implements BlockchainClientInterface
     {
         $bet = $this->send('get_bet', ['uuid' => $uuid])['bet'];
 
-        return $this->serializer->deserialize($bet, Bet::class, 'json');
+        return $this->serializer->denormalize($bet, Bet::class);
     }
 
     /**

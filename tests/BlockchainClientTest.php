@@ -30,7 +30,7 @@ class BlockchainClientTest extends TestCase
 
     public function testCreateBetReturnTransaction()
     {
-        $bet = $this->creteBet();
+        $bet = $this->creteBetInst();
 
         $transactionHash = $this->client->createBet($bet)->getTransactionHash();
         $uuid = $this->client->createBet($bet)->getUuid();
@@ -41,7 +41,7 @@ class BlockchainClientTest extends TestCase
 
     public function testGetTransactionState()
     {
-        $transactionHash = $this->client->createBet($this->creteBet())->getTransactionHash();
+        $transactionHash = $this->client->createBet($this->creteBetInst())->getTransactionHash();
 
         $states = [];
         while (true) {
@@ -140,7 +140,7 @@ class BlockchainClientTest extends TestCase
 
     public function testCreateFastBet()
     {
-        $result = $this->client->createFastBet($this->creteBet());
+        $result = $this->client->createFastBet($this->creteBetInst());
 
         $this->assertInstanceOf(CreateFastBetResponse::class, $result);
         $this->assertNotEmpty($result->getUuid());
@@ -148,7 +148,7 @@ class BlockchainClientTest extends TestCase
 
     public function testGetCreateBetTransactionHash()
     {
-        $result = $this->client->createFastBet($this->creteBet());
+        $result = $this->client->createFastBet($this->creteBetInst());
 
         $hash = null;
 
@@ -176,10 +176,12 @@ class BlockchainClientTest extends TestCase
             if ($transaction->getState()->eq(TransactionState::DONE)) {
                 break;
             }
+
+            sleep(1);
         }
     }
 
-    private function creteBet()
+    private function creteBetInst()
     {
         return  new Bet(
             'id',
@@ -197,7 +199,7 @@ class BlockchainClientTest extends TestCase
 
     private function createAndWait(): string
     {
-        $createResponse = $this->client->createBet($this->creteBet());
+        $createResponse = $this->client->createBet($this->creteBetInst());
 
         $this->waiteDone($createResponse->getTransactionHash());
 
