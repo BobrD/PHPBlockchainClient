@@ -15,7 +15,8 @@ class TransactionNormalizer implements DenormalizerInterface
             $data['method'],
             $data['args'],
             $data['state'],
-            $data['result']
+            $data['result'],
+            $data['error']
         );
     }
 

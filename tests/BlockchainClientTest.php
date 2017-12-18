@@ -32,10 +32,14 @@ class BlockchainClientTest extends TestCase
     {
         $bet = $this->creteBetInst();
 
-        $transactionHash = $this->client->createBet($bet)->getTransactionHash();
-        $uuid = $this->client->createBet($bet)->getUuid();
+        $response = $this->client->createBet($bet);
+
+        $transactionHash = $response->getTransactionHash();
+
+        $uuid = $response->getUuid();
 
         $this->assertRegExp('#0x.*?#', $transactionHash);
+
         $this->assertNotEmpty($uuid);
     }
 
@@ -52,6 +56,8 @@ class BlockchainClientTest extends TestCase
             if ($transaction->getState()->eq(TransactionState::DONE)) {
                 break;
             }
+
+            sleep(1);
         }
 
         $this->assertNotEmpty($states);
@@ -175,6 +181,10 @@ class BlockchainClientTest extends TestCase
 
             if ($transaction->getState()->eq(TransactionState::DONE)) {
                 break;
+            }
+
+            if ($transaction->hasError()) {
+                throw new \RuntimeException('Transaction closed with error.');
             }
 
             sleep(1);

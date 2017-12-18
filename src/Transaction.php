@@ -35,14 +35,28 @@ final class Transaction
     private $result;
 
     /**
+     * @var string|null
+     */
+    private $error;
+
+    /**
      * @param string $transactionHash
      * @param string $contractUuid
      * @param ContractMethod|string $method
      * @param array $args
      * @param TransactionState|string $state
      * @param null|string $result
+     * @param null|string $error
      */
-    public function __construct(string $transactionHash, string $contractUuid, $method, array $args, $state, $result)
+    public function __construct(
+        string $transactionHash,
+        string $contractUuid,
+        $method, array
+        $args,
+        $state,
+        $result,
+        $error
+    )
     {
         $this->transactionHash = $transactionHash;
         $this->contractUuid = $contractUuid;
@@ -50,6 +64,7 @@ final class Transaction
         $this->args = $args;
         $this->state = TransactionState::create($state);
         $this->result = $result;
+        $this->error = $error;
     }
 
 
@@ -96,8 +111,24 @@ final class Transaction
     /**
      * @return null|string
      */
-    public function getResult(): string
+    public function getResult()
     {
         return $this->result;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasError(): bool
+    {
+        return null !== $this->error;
     }
 }
